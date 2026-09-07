@@ -125,6 +125,7 @@ already prints them; they activate when the transport ships.
 |---|---|---|
 | Consumer front (the network's home) | `https://ai.gist.rs` | live |
 | Web wallet | `https://ai.gist.rs/wallet` | live (sign-in opens when the OAuth app is configured) |
+| Contribution leaderboard (pseudonymous, epoch-scoped) | `https://ai.gist.rs/leaderboard` | live |
 | Service plane (machine API; the CLI default) | `https://heal.gist.rs` | live |
 
 Earlier `v0.1.0`/`v0.1.1` binaries default to the retired `kat.heal.gist.rs` URL —
