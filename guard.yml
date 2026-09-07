@@ -1,0 +1,30 @@
+# Proposal 003 — source-free distribution guard. This repo exists to ship
+# binaries and installer copy ONLY; a Rust (or any) source file or binary
+# blob landing here is a stop-the-line event.
+name: no-source-guard
+
+on:
+  push:
+  schedule:
+    - cron: '17 4 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  no-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Fail on any tracked source or binary file
+        run: |
+          set -euo pipefail
+          hits="$(git ls-files '*.rs' '*.exe' '*.dll' '*.dylib' '*.so' '*.a' '*.rlib')"
+          if [ -n "$hits" ]; then
+            echo "::error title=source-free guard::source or binary files are forbidden in this repo (Proposal 003)"
+            echo "$hits"
+            exit 1
+          fi
+          echo "ok: no source or binary files tracked"
