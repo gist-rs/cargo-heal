@@ -123,8 +123,13 @@ already prints them; they activate when the transport ships.
 
 | Surface | URL | Status |
 |---|---|---|
-| Service plane (devnet) | `https://kat.heal.gist.rs` (CLI default) | bring-up in progress — override with `RIIR_HEAL_KAT_SERVICE_URL` |
-| Web wallet | `https://riir-kat-service.foxfox.workers.dev/wallet` | bring-up in progress |
+| Consumer front (the network's home) | `https://ai.gist.rs` | live |
+| Web wallet | `https://ai.gist.rs/wallet` | live (sign-in opens when the OAuth app is configured) |
+| Service plane (machine API; the CLI default) | `https://heal.gist.rs` | live |
+
+Earlier `v0.1.0`/`v0.1.1` binaries default to the retired `kat.heal.gist.rs` URL —
+export `RIIR_HEAL_KAT_SERVICE_URL=https://heal.gist.rs` for those; the default
+changes to `heal.gist.rs` in v0.1.2.
 
 ## Privacy & data posture
 
