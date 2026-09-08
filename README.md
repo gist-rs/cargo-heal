@@ -20,7 +20,7 @@ iwr -useb https://raw.githubusercontent.com/gist-rs/cargo-heal/main/install.ps1 
 Homebrew (prebuilt formula — nothing is compiled):
 
 ```sh
-brew tap gist-rs/tap && brew install cargo-heal
+brew tap gist-rs/tap && brew trust gist-rs/tap && brew install cargo-heal
 ```
 
 Scoop:
