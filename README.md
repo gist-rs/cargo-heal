@@ -129,8 +129,20 @@ already prints them; they activate when the transport ships.
 | Service plane (machine API; the CLI default) | `https://heal.gist.rs` | live |
 
 Earlier `v0.1.0`/`v0.1.1` binaries default to the retired `kat.heal.gist.rs` URL —
-export `RIIR_HEAL_KAT_SERVICE_URL=https://heal.gist.rs` for those; the default
-changes to `heal.gist.rs` in v0.1.2.
+export `RIIR_HEAL_KAT_SERVICE_URL=https://heal.gist.rs` for those; **v0.1.2
+defaults to `heal.gist.rs`** and ships `login` / `update` / `sync` in the
+release binary.
+
+### The just-works surface (v0.1.2)
+
+```sh
+cargo heal          # DRY RUN: review what would be fixed, zero edits
+cargo heal --fix    # REAL fix: writes in place (compile-gated on fix builds)
+cargo heal --mine   # what KAT mining is + the policy + how to earn
+cargo heal login    # claim your 100M KAT devnet grant
+cargo heal sync     # push redacted batches (the mining contribution)
+cargo heal account  # burn, balance, grant, network state
+```
 
 ## Privacy & data posture
 
