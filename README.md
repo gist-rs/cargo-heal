@@ -31,7 +31,24 @@ scoop install cargo-heal
 ```
 
 Installers place `cargo-heal` in `~/.cargo/bin` (Windows: `%USERPROFILE%\.cargo\bin`),
-so the `cargo heal` subcommand works in any Rust project.
+so the `cargo heal` subcommand works in any Rust project. They resolve the latest
+release from the GitHub API (pin one with `CARGO_HEAL_VERSION=v0.1.3` on install.sh,
+`-Version v0.1.3` on install.ps1), auto-pick the Windows `msvc`/`gnu` asset —
+preferring `msvc` when a release ships both — and verify every download against
+the release's `SHA256SUMS` before extracting anything.
+
+> **Caveat — v0.1.2 / v0.1.3 binaries:** the released binaries default
+> `RIIR_HEAL_KAT_SERVICE_URL` to `heal.gist.rs`, which has no public DNS record
+> yet. Until v0.1.4 ships a built-in fallback host chain, point them at the live
+> front explicitly:
+>
+> ```sh
+> export RIIR_HEAL_KAT_SERVICE_URL=https://ai.gist.rs
+> ```
+>
+> ```powershell
+> [Environment]::SetEnvironmentVariable("RIIR_HEAL_KAT_SERVICE_URL","https://ai.gist.rs","User")  # Windows: persists for new shells
+> ```
 
 Then, inside a Rust crate:
 
@@ -126,7 +143,7 @@ already prints them; they activate when the transport ships.
 | Consumer front (the network's home) | `https://ai.gist.rs` | live |
 | Web wallet | `https://ai.gist.rs/wallet` | live (sign-in opens when the OAuth app is configured) |
 | Contribution leaderboard (pseudonymous, epoch-scoped) | `https://ai.gist.rs/leaderboard` | live |
-| Service plane (machine API; the CLI default) | `https://heal.gist.rs` | live |
+| Service plane (machine API; the CLI default) | `https://heal.gist.rs` | not publicly resolvable yet — set `RIIR_HEAL_KAT_SERVICE_URL=https://ai.gist.rs` (see caveat above) |
 
 Earlier `v0.1.0`/`v0.1.1` binaries default to the retired `kat.heal.gist.rs` URL —
 export `RIIR_HEAL_KAT_SERVICE_URL=https://heal.gist.rs` for those; **v0.1.2

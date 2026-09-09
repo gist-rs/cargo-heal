@@ -1,6 +1,7 @@
 #!/bin/sh
 # cargo-heal installer (binary-only distribution).
 # Usage: curl -fsSL https://raw.githubusercontent.com/gist-rs/cargo-heal/main/install.sh | sh
+# Pin a version: CARGO_HEAL_VERSION=v0.1.3 sh install.sh
 set -eu
 
 REPO="gist-rs/cargo-heal"
@@ -32,13 +33,30 @@ case "$OS" in
         ;;
 esac
 
-# Latest release tag via the public API (public repo — no auth).
-TAG="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" |
-    sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
-[ -n "$TAG" ] || { echo "error: cannot resolve the latest release (none published yet?)" >&2; exit 1; }
+# One API call covers both the tag and the asset list (public repo - no auth).
+if [ -n "${CARGO_HEAL_VERSION:-}" ]; then
+    RELEASE_JSON="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/tags/$CARGO_HEAL_VERSION")"
+else
+    RELEASE_JSON="$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest")"
+fi
+
+TAG="$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+[ -n "$TAG" ] || { echo "error: cannot resolve the release (none published yet?)" >&2; exit 1; }
+
+# Asset names come from the same release's assets[] - never assumed to exist.
+ASSETS="$(printf '%s\n' "$RELEASE_JSON" |
+    sed -n 's/.*"browser_download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' |
+    sed 's#.*/##')"
+
+ASSET="cargo-heal-$TAG-$TARGET.tar.gz"
+if ! printf '%s\n' "$ASSETS" | grep -Fqx "$ASSET"; then
+    echo "error: $ASSET is not an asset of release $TAG" >&2
+    echo "tar.gz assets in this release:" >&2
+    printf '%s\n' "$ASSETS" | grep -E '\.tar\.gz$' >&2 || echo "  (none)" >&2
+    exit 1
+fi
 
 BASE="https://github.com/$REPO/releases/download/$TAG"
-ASSET="cargo-heal-$TAG-$TARGET.tar.gz"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -57,7 +75,7 @@ else
     echo "error: need sha256sum or shasum to verify the download" >&2
     exit 1
 fi
-[ "$got" = "$want" ] || { echo "error: checksum mismatch (want $want, got $got)" >&2; exit 1; }
+[ "$got" = "$want" ] || { echo "error: checksum mismatch for $ASSET (want $want, got $got) - aborting" >&2; exit 1; }
 
 mkdir -p "$DEST"
 tar -xzf "$TMP/$ASSET" -C "$TMP"
